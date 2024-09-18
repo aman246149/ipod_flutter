@@ -63,7 +63,9 @@ class MusicPlayerProvider extends ChangeNotifier {
   MusicPlayerProvider._internal();
 
   void handleCenterButtonTap(BuildContext context) {
-    _saveState();
+    if (currentScreen is ArtistsScreen) {
+      _saveState();
+    }
     selectMenuItem(context);
   }
 
@@ -121,9 +123,10 @@ class MusicPlayerProvider extends ChangeNotifier {
 
   void _handleArtistsSelection() {
     if (_showArtists) {
-      _toggleArtistSelection();
+      // _toggleArtistSelection();
       if (artists.isNotEmpty) {
         _showSongs = true;
+        _selectedIndex = 2;
         setCurrentScreen(const MusicSongsScreen(), 'Songs');
         _songs.clear();
         loadSongs(songs: artists[_selectedArtistIndex].songs!);
@@ -151,11 +154,11 @@ class MusicPlayerProvider extends ChangeNotifier {
     }
   }
 
-  void _toggleArtistSelection() {
-    final selectedArtist = _artists[_selectedArtistIndex];
-    _artists.forEach((artist) => artist.isSelected = false);
-    selectedArtist.isSelected = !selectedArtist.isSelected;
-  }
+  // void _toggleArtistSelection() {
+  //   final selectedArtist = _artists[_selectedArtistIndex];
+  //   _artists.forEach((artist) => artist.isSelected = false);
+  //   selectedArtist.isSelected = !selectedArtist.isSelected;
+  // }
 
   void goBack() {
     if (_undoStack.isNotEmpty) {
