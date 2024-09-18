@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class SongModel {
   int? id;
   String? title;
@@ -5,6 +7,7 @@ class SongModel {
   List<Artists>? artists;
   String? createdAt;
   String? updatedAt;
+  bool isPlaying = false;
 
   SongModel(
       {this.id,
@@ -12,7 +15,8 @@ class SongModel {
       this.url,
       this.artists,
       this.createdAt,
-      this.updatedAt});
+      this.updatedAt,
+      this.isPlaying = false});
 
   SongModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -38,6 +42,7 @@ class SongModel {
     }
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
+
     return data;
   }
 }
@@ -45,18 +50,29 @@ class SongModel {
 class Artists {
   int? id;
   String? name;
+  List<SongModel>? songs;
+  bool isSelected = false;
 
-  Artists({this.id, this.name});
+  Artists({this.id, this.name, this.isSelected = false});
 
   Artists.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
+    if (json['songs'] != null) {
+      songs = <SongModel>[];
+      json['songs'].forEach((v) {
+        songs!.add(SongModel.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['name'] = name;
+    if (songs != null) {
+      data['songs'] = songs!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

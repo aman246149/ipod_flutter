@@ -41,7 +41,7 @@ class IPodControls extends StatelessWidget {
             top: 85,
             child: IconButton(
               icon: const Icon(Icons.skip_previous),
-              onPressed: provider.previousTrack,
+              onPressed: provider.goBack,
             ),
           ),
           Positioned(
@@ -49,7 +49,7 @@ class IPodControls extends StatelessWidget {
             top: 85,
             child: IconButton(
               icon: const Icon(Icons.skip_next),
-              onPressed: provider.nextTrack,
+              onPressed: () => provider.handleCenterButtonTap(context),
             ),
           ),
           Center(
@@ -66,9 +66,9 @@ class IPodControls extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'MENU',
+                    provider.currentScreenTitle,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

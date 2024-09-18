@@ -27,6 +27,25 @@ class _InitialMenuScreenState extends State<InitialMenuScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MusicPlayerProvider>(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        final itemHeight = 56.0; // Approximate height of a ListTile
+        final selectedIndex = provider.showSongs
+            ? provider.selectedSongIndex
+            : provider.selectedIndex;
+        final targetOffset = selectedIndex * itemHeight;
+
+        // Only scroll if necessary
+        if (targetOffset != scrollController.offset) {
+          scrollController.animateTo(
+            targetOffset,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+          );
+        }
+      }
+    });
+
     return ListView.builder(
       physics: const ClampingScrollPhysics(),
       controller: scrollController,

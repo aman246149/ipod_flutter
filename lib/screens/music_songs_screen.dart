@@ -28,6 +28,23 @@ class _MusicSongsScreenState extends State<MusicSongsScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<MusicPlayerProvider>(context);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        final itemHeight = 56.0; // Approximate height of a ListTile
+        final selectedIndex = provider.selectedSongIndex;
+        final targetOffset = selectedIndex * itemHeight;
+
+        // Only scroll if necessary
+        if (targetOffset != scrollController.offset) {
+          scrollController.animateTo(
+            targetOffset,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+          );
+        }
+      }
+    });
+
     return ListView.builder(
       controller: scrollController,
       itemCount: provider.songs.length,
@@ -46,13 +63,22 @@ class _MusicSongsScreenState extends State<MusicSongsScreen> {
               ),
             ),
             subtitle: Text(
-              song.artists?.map((e) => e.name).join(",") ?? "",
+              song.artists?.map((e) => e.name).join(", ") ?? "",
               style: TextStyle(
                 color: provider.selectedSongIndex == index
                     ? Colors.white70
                     : Colors.grey,
                 fontSize: 12,
               ),
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                song.isPlaying ? Icons.pause : Icons.play_arrow,
+                color: provider.selectedSongIndex == index
+                    ? Colors.white
+                    : Colors.black,
+              ),
+              onPressed: () {},
             ),
           ),
         );

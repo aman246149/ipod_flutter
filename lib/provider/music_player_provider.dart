@@ -2,6 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:music/model/song_model.dart';
+import 'package:music/screens/artists_screen.dart';
+import '../interfaces/imusic_player.dart';
+import '../player/audio_player_adapter.dart';
+import '../player/just_audio_adapter.dart';
 import '../repository/song_api.dart';
 
 import '../screens/initial_menu_screen.dart';
@@ -16,7 +20,6 @@ class Song {
 }
 
 class MusicPlayerProvider extends ChangeNotifier {
-  final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
   int _selectedIndex = 0;
   int _selectedSongIndex = 0;
@@ -29,7 +32,9 @@ class MusicPlayerProvider extends ChangeNotifier {
     'Settings'
   ];
   List<SongModel> _songs = [];
-
+  List<Artists> _artists = [];
+  IMusicPlayer _musicPlayer = AudioPlayerAdapter();
+  int _selectedArtistIndex = 0;
   Widget _currentScreen = const InitialMenuScreen();
   String _currentScreenTitle = 'iPod';
 
@@ -39,10 +44,14 @@ class MusicPlayerProvider extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
   int get selectedIndex => _selectedIndex;
   int get selectedSongIndex => _selectedSongIndex;
+  int get selectedArtistIndex => _selectedArtistIndex;
   bool _showSongs = false;
+  bool _showArtists = false;
   List<String> get menuItems => _menuItems;
   List<SongModel> get songs => _songs;
+  List<Artists> get artists => _artists;
   bool get showSongs => _showSongs;
+  bool get showArtists => _showArtists;
 
   DateTime? _lastTapTime;
 
@@ -54,23 +63,7 @@ class MusicPlayerProvider extends ChangeNotifier {
   MusicPlayerProvider._internal();
 
   void handleCenterButtonTap(BuildContext context) {
-    final now = DateTime.now();
-    if (_lastTapTime != null &&
-        now.difference(_lastTapTime!) < Duration(milliseconds: 300)) {
-    } else {
-      selectMenuItem(context);
-    }
-    _lastTapTime = now;
-  }
-
-  void togglePlayPause() {
-    _isPlaying = !_isPlaying;
-    if (_isPlaying) {
-      _audioPlayer.play(UrlSource(_songs[_selectedSongIndex].url!));
-    } else {
-      _audioPlayer.pause();
-    }
-    notifyListeners();
+    selectMenuItem(context);
   }
 
   void moveSelection(int direction) {
@@ -78,6 +71,14 @@ class MusicPlayerProvider extends ChangeNotifier {
       int newIndex = _selectedSongIndex + direction;
       if (newIndex >= 0 && newIndex < _songs.length) {
         _selectedSongIndex = newIndex;
+
+        notifyListeners();
+      }
+    } else if (_showArtists) {
+      int newIndex = _selectedArtistIndex + direction;
+      if (newIndex >= 0 && newIndex < _artists.length) {
+        _selectedArtistIndex = newIndex;
+
         notifyListeners();
       }
     } else {
@@ -91,10 +92,44 @@ class MusicPlayerProvider extends ChangeNotifier {
 
   void selectMenuItem(BuildContext context) {
     if (menuItems[selectedIndex] == 'Songs') {
+      if (_showSongs) {
+        print(_songs[selectedSongIndex].isPlaying);
+        if (_songs[selectedSongIndex].isPlaying == false) {
+          _musicPlayer.play(_songs[selectedSongIndex].url!);
+          _songs[selectedSongIndex].isPlaying = true;
+        } else {
+          _musicPlayer.stop();
+          _songs[selectedSongIndex].isPlaying = false;
+        }
+        notifyListeners();
+        return;
+      }
+
       _showSongs = true;
 
       setCurrentScreen(const MusicSongsScreen(), 'Songs');
       loadSongs();
+      notifyListeners();
+    } else if (menuItems[selectedIndex] == 'Artists') {
+      if (_showArtists) {
+        if (_artists[selectedArtistIndex].isSelected == false) {
+          for (var artist in _artists) {
+            artist.isSelected = false;
+          }
+          _artists[selectedArtistIndex].isSelected = true;
+        } else {
+          for (var artist in _artists) {
+            artist.isSelected = false;
+          }
+        }
+        notifyListeners();
+        return;
+      }
+
+      _showArtists = true;
+
+      setCurrentScreen(const ArtistsScreen(), 'Artists');
+      loadArtists();
       notifyListeners();
     }
   }
@@ -102,26 +137,11 @@ class MusicPlayerProvider extends ChangeNotifier {
   void goBack() {
     if (_showSongs) {
       _showSongs = false;
+      setCurrentScreen(const InitialMenuScreen(), 'iPod');
       notifyListeners();
-    }
-  }
-
-  void nextTrack() {
-    if (_selectedSongIndex < _songs.length - 1) {
-      _selectedSongIndex++;
-      if (_isPlaying) {
-        _audioPlayer.play(UrlSource(_songs[_selectedSongIndex].url!));
-      }
-      notifyListeners();
-    }
-  }
-
-  void previousTrack() {
-    if (_selectedSongIndex > 0) {
-      _selectedSongIndex--;
-      if (_isPlaying) {
-        _audioPlayer.play(UrlSource(_songs[_selectedSongIndex].url!));
-      }
+    } else if (_showArtists) {
+      _showArtists = false;
+      setCurrentScreen(const InitialMenuScreen(), 'iPod');
       notifyListeners();
     }
   }
@@ -132,6 +152,16 @@ class MusicPlayerProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('Error loading songs: $e');
+      // Handle error (e.g., show an error message to the user)
+    }
+  }
+
+  Future<void> loadArtists() async {
+    try {
+      _artists = await _songApi.fetchArtists();
+      notifyListeners();
+    } catch (e) {
+      print('Error loading artists: $e');
       // Handle error (e.g., show an error message to the user)
     }
   }

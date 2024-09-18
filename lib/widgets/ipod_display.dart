@@ -10,7 +10,6 @@ class IPodDisplay extends StatefulWidget {
 }
 
 class _IPodDisplayState extends State<IPodDisplay> {
-  final ScrollController scrollController = ScrollController();
   @override
   void dispose() {
     super.dispose();
@@ -20,24 +19,7 @@ class _IPodDisplayState extends State<IPodDisplay> {
   Widget build(BuildContext context) {
     final provider = Provider.of<MusicPlayerProvider>(context);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
-        final itemHeight = 56.0; // Approximate height of a ListTile
-        final selectedIndex = provider.showSongs
-            ? provider.selectedSongIndex
-            : provider.selectedIndex;
-        final targetOffset = selectedIndex * itemHeight;
-
-        // Only scroll if necessary
-        if (targetOffset != scrollController.offset) {
-          scrollController.animateTo(
-            targetOffset,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-          );
-        }
-      }
-    });
+  
 
     return Container(
       width: 220,
