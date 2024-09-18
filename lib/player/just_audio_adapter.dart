@@ -19,4 +19,16 @@ class JustAudioAdapter implements IMusicPlayer {
   void stop() {
     player.stop();
   }
+  
+  @override
+  Future<Duration> getDuration() {
+    // TODO: implement getDuration
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Duration> getPosition() {
+    // TODO: implement getPosition
+    throw UnimplementedError();
+  }
 }

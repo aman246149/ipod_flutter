@@ -127,6 +127,7 @@ class MusicPlayerProvider extends ChangeNotifier {
       if (artists.isNotEmpty) {
         _showSongs = true;
         _selectedIndex = 2;
+        _selectedSongIndex = 0;
         setCurrentScreen(const MusicSongsScreen(), 'Songs');
         _songs.clear();
         loadSongs(songs: artists[_selectedArtistIndex].songs!);
@@ -184,7 +185,7 @@ class MusicPlayerProvider extends ChangeNotifier {
 
   Future<void> loadSongs({List<SongModel>? songs}) async {
     try {
-      if (songs!.isNotEmpty) {
+      if (songs != null && songs.isNotEmpty) {
         _songs = songs;
       } else {
         _songs = await _songApi.fetchSongs();

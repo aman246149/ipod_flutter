@@ -20,4 +20,14 @@ class AudioPlayerAdapter implements IMusicPlayer {
   void stop() {
     player.stop();
   }
+  
+  @override
+  Future<Duration?> getDuration() {
+    return player.getDuration();
+  }
+  
+  @override
+  Future<Duration?> getPosition() {
+    return player.getCurrentPosition();
+  }
 }
