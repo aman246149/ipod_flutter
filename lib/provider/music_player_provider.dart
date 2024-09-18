@@ -20,10 +20,8 @@ class Song {
 }
 
 class MusicPlayerProvider extends ChangeNotifier {
-  bool _isPlaying = false;
-  int _selectedIndex = 0;
-  int _selectedSongIndex = 0;
   final SongApi _songApi = SongApi();
+  final IMusicPlayer _musicPlayer = AudioPlayerAdapter();
   final List<String> _menuItems = [
     'Playlists',
     'Artists',
@@ -31,124 +29,134 @@ class MusicPlayerProvider extends ChangeNotifier {
     'Contacts',
     'Settings'
   ];
+
+  bool _isPlaying = false;
+  int _selectedIndex = 0;
+  int _selectedSongIndex = 0;
+  int _selectedArtistIndex = 0;
   List<SongModel> _songs = [];
   List<Artists> _artists = [];
-  IMusicPlayer _musicPlayer = AudioPlayerAdapter();
-  int _selectedArtistIndex = 0;
+  bool _showSongs = false;
+  bool _showArtists = false;
   Widget _currentScreen = const InitialMenuScreen();
   String _currentScreenTitle = 'iPod';
 
-  Widget get currentScreen => _currentScreen;
-  String get currentScreenTitle => _currentScreenTitle;
-
+  // Getters
   bool get isPlaying => _isPlaying;
   int get selectedIndex => _selectedIndex;
   int get selectedSongIndex => _selectedSongIndex;
   int get selectedArtistIndex => _selectedArtistIndex;
-  bool _showSongs = false;
-  bool _showArtists = false;
   List<String> get menuItems => _menuItems;
   List<SongModel> get songs => _songs;
   List<Artists> get artists => _artists;
   bool get showSongs => _showSongs;
   bool get showArtists => _showArtists;
+  IMusicPlayer get musicPlayer => _musicPlayer;
+  Widget get currentScreen => _currentScreen;
+  String get currentScreenTitle => _currentScreenTitle;
 
-  DateTime? _lastTapTime;
-
-  //make musicprovider a singleton
+  // Singleton implementation
   static final MusicPlayerProvider _instance = MusicPlayerProvider._internal();
-  factory MusicPlayerProvider() {
-    return _instance;
-  }
+  factory MusicPlayerProvider() => _instance;
   MusicPlayerProvider._internal();
 
-  void handleCenterButtonTap(BuildContext context) {
-    selectMenuItem(context);
-  }
+  void handleCenterButtonTap(BuildContext context) => selectMenuItem(context);
 
   void moveSelection(int direction) {
+    int newIndex;
+    int maxIndex;
+
     if (_showSongs) {
-      int newIndex = _selectedSongIndex + direction;
-      if (newIndex >= 0 && newIndex < _songs.length) {
-        _selectedSongIndex = newIndex;
-
-        notifyListeners();
-      }
+      newIndex = _selectedSongIndex + direction;
+      maxIndex = _songs.length;
+      if (newIndex >= 0 && newIndex < maxIndex) _selectedSongIndex = newIndex;
     } else if (_showArtists) {
-      int newIndex = _selectedArtistIndex + direction;
-      if (newIndex >= 0 && newIndex < _artists.length) {
-        _selectedArtistIndex = newIndex;
-
-        notifyListeners();
-      }
+      newIndex = _selectedArtistIndex + direction;
+      maxIndex = _artists.length;
+      if (newIndex >= 0 && newIndex < maxIndex) _selectedArtistIndex = newIndex;
     } else {
-      int newIndex = _selectedIndex + direction;
-      if (newIndex >= 0 && newIndex < _menuItems.length) {
-        _selectedIndex = newIndex;
-        notifyListeners();
-      }
+      newIndex = _selectedIndex + direction;
+      maxIndex = _menuItems.length;
+      if (newIndex >= 0 && newIndex < maxIndex) _selectedIndex = newIndex;
     }
+
+    notifyListeners();
   }
 
   void selectMenuItem(BuildContext context) {
     if (menuItems[selectedIndex] == 'Songs') {
-      if (_showSongs) {
-        print(_songs[selectedSongIndex].isPlaying);
-        if (_songs[selectedSongIndex].isPlaying == false) {
-          _musicPlayer.play(_songs[selectedSongIndex].url!);
-          _songs[selectedSongIndex].isPlaying = true;
-        } else {
-          _musicPlayer.stop();
-          _songs[selectedSongIndex].isPlaying = false;
-        }
-        notifyListeners();
-        return;
-      }
-
-      _showSongs = true;
-
-      setCurrentScreen(const MusicSongsScreen(), 'Songs');
-      loadSongs();
-      notifyListeners();
+      _handleSongsSelection();
     } else if (menuItems[selectedIndex] == 'Artists') {
-      if (_showArtists) {
-        if (_artists[selectedArtistIndex].isSelected == false) {
-          for (var artist in _artists) {
-            artist.isSelected = false;
-          }
-          _artists[selectedArtistIndex].isSelected = true;
-        } else {
-          for (var artist in _artists) {
-            artist.isSelected = false;
-          }
-        }
-        notifyListeners();
-        return;
-      }
-
-      _showArtists = true;
-
-      setCurrentScreen(const ArtistsScreen(), 'Artists');
-      loadArtists();
-      notifyListeners();
+      _handleArtistsSelection();
     }
   }
 
-  void goBack() {
+  void _handleSongsSelection() {
     if (_showSongs) {
+      _toggleSongPlayback();
+    } else {
+      _showSongs = true;
+      setCurrentScreen(const MusicSongsScreen(), 'Songs');
+      loadSongs();
+    }
+    notifyListeners();
+  }
+
+  void _handleArtistsSelection() {
+    if (_showArtists) {
+      _toggleArtistSelection();
+      if (artists.isNotEmpty) {
+        _showSongs = true;
+        setCurrentScreen(const MusicSongsScreen(), 'Songs');
+        _songs.clear();
+        loadSongs(songs: artists[_selectedArtistIndex].songs!);
+        notifyListeners();
+      }
+    } else {
+      _showArtists = true;
+      setCurrentScreen(const ArtistsScreen(), 'Artists');
+      loadArtists();
+    }
+    notifyListeners();
+  }
+
+  void _toggleSongPlayback() {
+    final selectedSong = _songs[_selectedSongIndex];
+    if (!selectedSong.isPlaying) {
+      for (var song in _songs) {
+        song.isPlaying = false;
+      }
+      _musicPlayer.play(selectedSong.url!);
+      selectedSong.isPlaying = true;
+    } else {
+      _musicPlayer.stop();
+      selectedSong.isPlaying = false;
+    }
+  }
+
+  void _toggleArtistSelection() {
+    final selectedArtist = _artists[_selectedArtistIndex];
+    _artists.forEach((artist) => artist.isSelected = false);
+    selectedArtist.isSelected = !selectedArtist.isSelected;
+  }
+
+  void goBack() {
+    if (_showSongs || _showArtists) {
       _showSongs = false;
-      setCurrentScreen(const InitialMenuScreen(), 'iPod');
-      notifyListeners();
-    } else if (_showArtists) {
       _showArtists = false;
       setCurrentScreen(const InitialMenuScreen(), 'iPod');
       notifyListeners();
     }
   }
 
-  Future<void> loadSongs() async {
+  Future<void> loadSongs({List<SongModel>? songs}) async {
     try {
-      _songs = await _songApi.fetchSongs();
+      if (songs!.isNotEmpty) {
+        _songs = songs;
+      } else {
+        _songs = await _songApi.fetchSongs();
+      }
+
       notifyListeners();
     } catch (e) {
       print('Error loading songs: $e');

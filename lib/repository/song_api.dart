@@ -14,7 +14,7 @@ class SongApi {
       baseUrl: 'http://65.0.106.141',
       headers: {
         'Authorization':
-            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhbWFudGhhcGxpeWFsMTRAZ21haWwuY29tIiwicm9sZXMiOiJbQURNSU5dIiwiaWF0IjoxNzI2NjU2NjgyLCJleHAiOjYxNzI2MzIwMDAwfQ.gws66ojmFshCBqUkqoKeX6h6_LB2yV80UQaIPCc6RHkMaRTmvlQaY6DjcYkQ4DA5V_YNXUy_j60pDlo8hu_0Bw',
+            'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhbWFudGhhcGxpeWFsMTRAZ21haWwuY29tIiwicm9sZXMiOiJbQURNSU5dIiwiaWF0IjoxNzI2NjYxNjI1LCJleHAiOjYxNzI2MzIwMDAwfQ.G555tzSgiAjynl76upF4pALhzzUACJgjyYDrF-wOFY7OYhqnq29W0DMH-wscjRnCw8h7-INVmB-8RxtHTt5YPg',
       },
     ));
   }

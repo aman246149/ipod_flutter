@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/music_player_provider.dart';
+import '../widgets/song_tile.dart';
 
 class MusicSongsScreen extends StatefulWidget {
   const MusicSongsScreen({super.key});
@@ -50,38 +51,7 @@ class _MusicSongsScreenState extends State<MusicSongsScreen> {
       itemCount: provider.songs.length,
       itemBuilder: (context, index) {
         final song = provider.songs[index];
-        return Container(
-          color: provider.selectedSongIndex == index ? Colors.blue : null,
-          child: ListTile(
-            title: Text(
-              song.title ?? "",
-              style: TextStyle(
-                color: provider.selectedSongIndex == index
-                    ? Colors.white
-                    : Colors.black,
-                fontSize: 14,
-              ),
-            ),
-            subtitle: Text(
-              song.artists?.map((e) => e.name).join(", ") ?? "",
-              style: TextStyle(
-                color: provider.selectedSongIndex == index
-                    ? Colors.white70
-                    : Colors.grey,
-                fontSize: 12,
-              ),
-            ),
-            trailing: IconButton(
-              icon: Icon(
-                song.isPlaying ? Icons.pause : Icons.play_arrow,
-                color: provider.selectedSongIndex == index
-                    ? Colors.white
-                    : Colors.black,
-              ),
-              onPressed: () {},
-            ),
-          ),
-        );
+        return SongTile(songModel: song, isSelected: index == provider.selectedSongIndex);
       },
     );
   }

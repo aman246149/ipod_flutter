@@ -57,6 +57,7 @@ class IPodControls extends StatelessWidget {
               onTap: () {
                 HapticFeedback.heavyImpact(); // Add haptic feedback
                 provider.handleCenterButtonTap(context);
+               
               },
               child: Container(
                 width: 80,
