@@ -55,12 +55,29 @@ class MusicPlayerProvider extends ChangeNotifier {
   Widget get currentScreen => _currentScreen;
   String get currentScreenTitle => _currentScreenTitle;
 
+  final List<Map<String, dynamic>> _undoStack = [];
+
   // Singleton implementation
   static final MusicPlayerProvider _instance = MusicPlayerProvider._internal();
   factory MusicPlayerProvider() => _instance;
   MusicPlayerProvider._internal();
 
-  void handleCenterButtonTap(BuildContext context) => selectMenuItem(context);
+  void handleCenterButtonTap(BuildContext context) {
+    _saveState();
+    selectMenuItem(context);
+  }
+
+  void _saveState() {
+    _undoStack.add({
+      'selectedIndex': _selectedIndex,
+      'selectedSongIndex': _selectedSongIndex,
+      'selectedArtistIndex': _selectedArtistIndex,
+      'showSongs': _showSongs,
+      'showArtists': _showArtists,
+      'currentScreen': _currentScreen,
+      'currentScreenTitle': _currentScreenTitle,
+    });
+  }
 
   void moveSelection(int direction) {
     int newIndex;
@@ -141,11 +158,24 @@ class MusicPlayerProvider extends ChangeNotifier {
   }
 
   void goBack() {
-    if (_showSongs || _showArtists) {
-      _showSongs = false;
-      _showArtists = false;
-      setCurrentScreen(const InitialMenuScreen(), 'iPod');
+    if (_undoStack.isNotEmpty) {
+      final previousState = _undoStack.removeLast();
+      _selectedIndex = previousState['selectedIndex'];
+      _selectedSongIndex = previousState['selectedSongIndex'];
+      _selectedArtistIndex = previousState['selectedArtistIndex'];
+      _showSongs = previousState['showSongs'];
+      _showArtists = previousState['showArtists'];
+      _currentScreen = previousState['currentScreen'];
+      _currentScreenTitle = previousState['currentScreenTitle'];
       notifyListeners();
+    } else {
+      // If the undo stack is empty, perform the original goBack logic
+      if (_showSongs || _showArtists) {
+        _showSongs = false;
+        _showArtists = false;
+        setCurrentScreen(const InitialMenuScreen(), 'iPod');
+        notifyListeners();
+      }
     }
   }
 
