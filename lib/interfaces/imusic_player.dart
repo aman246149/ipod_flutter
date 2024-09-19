@@ -6,4 +6,5 @@ abstract class IMusicPlayer {
   Future<Duration?>? getPosition();
   Stream<Duration?>? getPositionStream();
   Stream<Duration?>? getDurationStream();
+  Stream<void> get onPlayerComplete;  // Add this line
 }

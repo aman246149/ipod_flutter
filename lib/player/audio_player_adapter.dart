@@ -40,5 +40,9 @@ class AudioPlayerAdapter implements IMusicPlayer {
   @override
   Stream<Duration?> getDurationStream() {
     return player.onDurationChanged;  
+
   }
+  
+  @override
+  Stream<void> get onPlayerComplete => player.onPlayerComplete;
 }

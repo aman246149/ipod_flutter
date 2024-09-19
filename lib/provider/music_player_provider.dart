@@ -5,7 +5,6 @@ import 'package:music/model/song_model.dart';
 import 'package:music/screens/artists_screen.dart';
 import '../interfaces/imusic_player.dart';
 import '../player/audio_player_adapter.dart';
-import '../player/just_audio_adapter.dart';
 import '../repository/song_api.dart';
 
 import '../screens/initial_menu_screen.dart';
@@ -139,20 +138,6 @@ class MusicPlayerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _toggleSongPlayback() {
-    final selectedSong = _songs[_selectedSongIndex];
-    if (!selectedSong.isPlaying) {
-      for (var song in _songs) {
-        song.isPlaying = false;
-      }
-      _musicPlayer.play(selectedSong.url!);
-      selectedSong.isPlaying = true;
-    } else {
-      _musicPlayer.stop();
-      selectedSong.isPlaying = false;
-    }
-  }
-
   // void _toggleArtistSelection() {
   //   final selectedArtist = _artists[_selectedArtistIndex];
   //   _artists.forEach((artist) => artist.isSelected = false);
@@ -210,5 +195,55 @@ class MusicPlayerProvider extends ChangeNotifier {
     _currentScreen = screen;
     _currentScreenTitle = title;
     notifyListeners();
+  }
+
+  SongModel? _currentlyPlayingSong;
+  bool _isPlaying = false;
+
+  SongModel? get currentlyPlayingSong => _currentlyPlayingSong;
+  bool get isPlaying => _isPlaying;
+
+  void playSong(SongModel song) {
+    _currentlyPlayingSong = song;
+    _isPlaying = true;
+    _musicPlayer.play(song.url!);
+    notifyListeners();
+  }
+
+  void stopSong() {
+    _currentlyPlayingSong = null;
+    _isPlaying = false;
+    _musicPlayer.stop();
+    notifyListeners();
+  }
+
+  void _toggleSongPlayback() {
+    final selectedSong = _songs[_selectedSongIndex];
+
+    if (_currentlyPlayingSong?.id == selectedSong.id) {
+      if (_isPlaying) {
+        stopSong();
+      } else {
+        playSong(selectedSong);
+        listenEndStream();
+      }
+    } else {
+      stopSong();
+      playSong(selectedSong);
+      listenEndStream();
+    }
+  }
+
+  void listenEndStream() {
+    _musicPlayer.onPlayerComplete.listen((_) {
+      stopSong();
+    }).onDone(() {});
+  }
+
+  bool isScrollerAtCurrentlyPlayingSong() {
+    if (_currentlyPlayingSong == null) {
+      return false;
+    }
+    return _selectedSongIndex == _songs.indexOf(_currentlyPlayingSong!);
   }
 }

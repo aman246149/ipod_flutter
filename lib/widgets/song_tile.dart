@@ -81,7 +81,7 @@ class SongTileState extends State<SongTile> {
             ),
             trailing: IconButton(
               icon: Icon(
-                widget.songModel.isPlaying ? Icons.pause : Icons.play_arrow,
+                provider.isPlaying && provider.currentlyPlayingSong?.id == widget.songModel.id ? Icons.pause : Icons.play_arrow,
                 color: widget.isSelected ? Colors.white : Colors.black,
               ),
               onPressed: () {
@@ -89,7 +89,9 @@ class SongTileState extends State<SongTile> {
               },
             ),
           ),
-          if (widget.songModel.isPlaying) ...[
+          if (
+            provider.isScrollerAtCurrentlyPlayingSong() &&
+             provider.isPlaying && provider.currentlyPlayingSong?.id == widget.songModel.id) ...[
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Column(

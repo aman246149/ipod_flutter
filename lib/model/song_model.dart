@@ -6,7 +6,6 @@ class SongModel {
   List<Artists>? artists;
   String? createdAt;
   String? updatedAt;
-  bool isPlaying = false;
 
 
   SongModel(
@@ -16,7 +15,6 @@ class SongModel {
       this.artists,
       this.createdAt,
       this.updatedAt,
-      this.isPlaying = false,
     });
 
   SongModel.fromJson(Map<String, dynamic> json) {
