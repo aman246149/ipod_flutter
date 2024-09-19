@@ -30,7 +30,6 @@ class MusicPlayerProvider extends ChangeNotifier {
     'Settings'
   ];
 
-  bool _isPlaying = false;
   int _selectedIndex = 0;
   int _selectedSongIndex = 0;
   int _selectedArtistIndex = 0;
@@ -42,7 +41,6 @@ class MusicPlayerProvider extends ChangeNotifier {
   String _currentScreenTitle = 'Music';
 
   // Getters
-  bool get isPlaying => _isPlaying;
   int get selectedIndex => _selectedIndex;
   int get selectedSongIndex => _selectedSongIndex;
   int get selectedArtistIndex => _selectedArtistIndex;

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 class SongModel {
   int? id;
@@ -9,6 +8,7 @@ class SongModel {
   String? updatedAt;
   bool isPlaying = false;
 
+
   SongModel(
       {this.id,
       this.title,
@@ -16,7 +16,8 @@ class SongModel {
       this.artists,
       this.createdAt,
       this.updatedAt,
-      this.isPlaying = false});
+      this.isPlaying = false,
+    });
 
   SongModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];

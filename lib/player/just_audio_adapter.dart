@@ -31,4 +31,16 @@ class JustAudioAdapter implements IMusicPlayer {
     // TODO: implement getPosition
     throw UnimplementedError();
   }
+  
+  @override
+  Stream<Duration?>? getDurationStream() {
+    // TODO: implement getDurationStream
+    throw UnimplementedError();
+  }
+  
+  @override
+  Stream<Duration?>? getPositionStream() {
+    // TODO: implement getPositionStream
+    throw UnimplementedError();
+  }
 }

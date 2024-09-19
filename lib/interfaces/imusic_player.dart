@@ -4,4 +4,6 @@ abstract class IMusicPlayer {
   void stop();
   Future<Duration?>? getDuration();
   Future<Duration?>? getPosition();
+  Stream<Duration?>? getPositionStream();
+  Stream<Duration?>? getDurationStream();
 }
