@@ -39,7 +39,7 @@ class MusicPlayerProvider extends ChangeNotifier {
   bool _showSongs = false;
   bool _showArtists = false;
   Widget _currentScreen = const InitialMenuScreen();
-  String _currentScreenTitle = 'iPod';
+  String _currentScreenTitle = 'Music';
 
   // Getters
   bool get isPlaying => _isPlaying;
@@ -177,7 +177,7 @@ class MusicPlayerProvider extends ChangeNotifier {
       if (_showSongs || _showArtists) {
         _showSongs = false;
         _showArtists = false;
-        setCurrentScreen(const InitialMenuScreen(), 'iPod');
+        setCurrentScreen(const InitialMenuScreen(), 'Music');
         notifyListeners();
       }
     }

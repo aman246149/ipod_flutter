@@ -25,56 +25,43 @@ class _ArtistsScreenState extends State<ArtistsScreen> {
         final artists = musicProvider.artists;
         final selectedArtistIndex = musicProvider.selectedArtistIndex;
 
-        return RawKeyboardListener(
-          focusNode: FocusNode(),
-          autofocus: true,
-          onKey: (RawKeyEvent event) {},
-          child: ListView.builder(
-            controller: _scrollController,
-            itemCount: artists.length,
-            itemBuilder: (context, index) {
-              final artist = artists[index];
-              final isSelected = index == selectedArtistIndex;
-              return Container(
-                color: isSelected
-                    ? Theme.of(context).primaryColor.withOpacity(0.2)
-                    : null,
-                child: ListTile(
-                  title: Text(artist.name ?? ""),
-                ),
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            final itemHeight = 56.0; // Approximate height of a ListTile
+            final selectedIndex = musicProvider.selectedArtistIndex;
+            final targetOffset = selectedIndex * itemHeight;
+
+            // Only scroll if necessary
+            if (targetOffset != _scrollController.offset) {
+              _scrollController.animateTo(
+                targetOffset,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
               );
-            },
-          ),
+            }
+          }
+        });
+
+        return ListView.builder(
+          controller: _scrollController,
+          itemCount: artists.length,
+          itemBuilder: (context, index) {
+            final artist = artists[index];
+            final isSelected = index == selectedArtistIndex;
+            return Container(
+              color: isSelected ? Colors.blue : null,
+              child: ListTile(
+                title: Text(
+                  artist.name ?? "",
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black,
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
-  }
-
-  void _moveSongSelection(MusicPlayerProvider musicProvider, int direction) {
-    final selectedArtist =
-        musicProvider.artists[musicProvider.selectedArtistIndex];
-    final songCount = selectedArtist.songs?.length ?? 0;
-    if (songCount > 0) {
-      setState(() {
-        _selectedSongIndex =
-            (_selectedSongIndex + direction).clamp(-1, songCount - 1);
-      });
-    }
-  }
-
-  void _playSongAtCurrentSelection(MusicPlayerProvider musicProvider) {
-    final selectedArtist =
-        musicProvider.artists[musicProvider.selectedArtistIndex];
-    if (_selectedSongIndex >= 0 &&
-        _selectedSongIndex < (selectedArtist.songs?.length ?? 0)) {
-      final selectedSong = selectedArtist.songs![_selectedSongIndex];
-      if (selectedSong.isPlaying) {
-        musicProvider.musicPlayer.stop();
-        selectedSong.isPlaying = false;
-      } else {
-        musicProvider.musicPlayer.play(selectedSong.url ?? "");
-        selectedSong.isPlaying = true;
-      }
-    }
   }
 }

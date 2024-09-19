@@ -19,8 +19,6 @@ class _IPodDisplayState extends State<IPodDisplay> {
   Widget build(BuildContext context) {
     final provider = Provider.of<MusicPlayerProvider>(context);
 
-  
-
     return Container(
       width: 220,
       height: 280,
@@ -32,7 +30,7 @@ class _IPodDisplayState extends State<IPodDisplay> {
         children: [
           const SizedBox(height: 10),
           Text(
-            provider.showSongs ? 'Songs' : 'iPod',
+            'Music',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const Divider(),

@@ -8,13 +8,13 @@ class MusicHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: Center(
         child: Container(
           width: 300,
           height: 600,
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Color(0xffDDA15E),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
