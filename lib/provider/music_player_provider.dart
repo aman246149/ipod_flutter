@@ -257,7 +257,8 @@ class MusicPlayerProvider extends ChangeNotifier {
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'music_player_notification',
         channelName: 'Music Player Notification',
-        channelDescription: 'This notification appears when the music player is running in the background.',
+        channelDescription:
+            'This notification appears when the music player is running in the background.',
         channelImportance: NotificationChannelImportance.LOW,
         priority: NotificationPriority.LOW,
         iconData: const NotificationIconData(
@@ -278,7 +279,7 @@ class MusicPlayerProvider extends ChangeNotifier {
         allowWifiLock: true,
       ),
     );
-    
+
     FlutterForegroundTask.startService(
       notificationTitle: 'Music Player',
       notificationText: 'Playing in the background',
