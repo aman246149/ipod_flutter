@@ -3,12 +3,15 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:music/model/song_model.dart';
 import 'package:music/screens/artists_screen.dart';
+import '../foreground_task.dart';
 import '../interfaces/imusic_player.dart';
 import '../player/audio_player_adapter.dart';
 import '../repository/song_api.dart';
 
 import '../screens/initial_menu_screen.dart';
 import '../screens/music_songs_screen.dart';
+
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 class Song {
   final String title;
@@ -207,6 +210,7 @@ class MusicPlayerProvider extends ChangeNotifier {
     _currentlyPlayingSong = song;
     _isPlaying = true;
     _musicPlayer.play(song.url!);
+    startForegroundTask();
     notifyListeners();
   }
 
@@ -214,6 +218,7 @@ class MusicPlayerProvider extends ChangeNotifier {
     _currentlyPlayingSong = null;
     _isPlaying = false;
     _musicPlayer.stop();
+    stopForegroundTask();
     notifyListeners();
   }
 
@@ -245,5 +250,43 @@ class MusicPlayerProvider extends ChangeNotifier {
       return false;
     }
     return _selectedSongIndex == _songs.indexOf(_currentlyPlayingSong!);
+  }
+
+  void startForegroundTask() {
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'music_player_notification',
+        channelName: 'Music Player Notification',
+        channelDescription: 'This notification appears when the music player is running in the background.',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+        iconData: const NotificationIconData(
+          resType: ResourceType.mipmap,
+          resPrefix: ResourcePrefix.ic,
+          name: 'launcher',
+        ),
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+        playSound: false,
+      ),
+      foregroundTaskOptions: const ForegroundTaskOptions(
+        interval: 5000,
+        isOnceEvent: false,
+        autoRunOnBoot: true,
+        allowWakeLock: true,
+        allowWifiLock: true,
+      ),
+    );
+    
+    FlutterForegroundTask.startService(
+      notificationTitle: 'Music Player',
+      notificationText: 'Playing in the background',
+      callback: startCallback,
+    );
+  }
+
+  void stopForegroundTask() {
+    FlutterForegroundTask.stopService();
   }
 }
